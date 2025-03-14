@@ -4,6 +4,8 @@ import { ClientData } from "@/types/clientData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { ArrowDownAZ, ArrowUpAZ, SortAsc, SortDesc } from "lucide-react";
 
 interface BarChartComponentProps {
   data: ClientData;
@@ -14,6 +16,8 @@ interface FormattedData {
   count: number;
 }
 
+type SortType = "default" | "asc" | "desc";
+
 const BarChartComponent = ({ data }: BarChartComponentProps) => {
   // Format data for recharts
   const formattedData: FormattedData[] = Object.entries(data).map(([version, count]) => ({
@@ -21,29 +25,46 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
     count,
   }));
 
-  // Sort by version
-  formattedData.sort((a, b) => a.version.localeCompare(b.version));
-
-  // State for controlling visible items
+  // States
   const [visibleItems, setVisibleItems] = useState(20);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [visibleData, setVisibleData] = useState<FormattedData[]>([]);
+  const [sortType, setSortType] = useState<SortType>("default");
+  
+  // Sort data based on sort type
+  const getSortedData = () => {
+    let sortedData = [...formattedData];
+    
+    if (sortType === "default") {
+      // Sort by version (default)
+      sortedData.sort((a, b) => a.version.localeCompare(b.version));
+    } else if (sortType === "asc") {
+      // Sort by count ascending
+      sortedData.sort((a, b) => a.count - b.count);
+    } else if (sortType === "desc") {
+      // Sort by count descending
+      sortedData.sort((a, b) => b.count - a.count);
+    }
+    
+    return sortedData;
+  };
 
   // Calculate bar width based on number of visible items
   const barWidth = Math.max(30, 60 - visibleItems / 4);
   
-  // Update visible data when scroll position or visible items change
+  // Update visible data when sort type, scroll position or visible items change
   useEffect(() => {
-    const maxScrollPosition = Math.max(0, formattedData.length - visibleItems);
+    const sortedData = getSortedData();
+    const maxScrollPosition = Math.max(0, sortedData.length - visibleItems);
     const normalizedPosition = Math.min(scrollPosition, maxScrollPosition);
     
-    const slicedData = formattedData.slice(
+    const slicedData = sortedData.slice(
       normalizedPosition, 
       normalizedPosition + visibleItems
     );
     
     setVisibleData(slicedData);
-  }, [formattedData, scrollPosition, visibleItems]);
+  }, [formattedData, scrollPosition, visibleItems, sortType]);
 
   // Handle slider change for scrolling
   const handleScrollChange = (values: number[]) => {
@@ -72,6 +93,33 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
             <option value={50}>50</option>
           </select>
         </div>
+      </div>
+
+      <div className="flex gap-2 mb-2">
+        <Button 
+          variant={sortType === "default" ? "default" : "outline"} 
+          size="sm" 
+          onClick={() => setSortType("default")}
+        >
+          <ArrowDownAZ className="mr-1" size={16} />
+          版本排序
+        </Button>
+        <Button 
+          variant={sortType === "asc" ? "default" : "outline"} 
+          size="sm" 
+          onClick={() => setSortType("asc")}
+        >
+          <SortAsc className="mr-1" size={16} />
+          数量升序
+        </Button>
+        <Button 
+          variant={sortType === "desc" ? "default" : "outline"} 
+          size="sm" 
+          onClick={() => setSortType("desc")}
+        >
+          <SortDesc className="mr-1" size={16} />
+          数量降序
+        </Button>
       </div>
 
       <ScrollArea className="h-[330px] w-full border rounded-lg p-4">
