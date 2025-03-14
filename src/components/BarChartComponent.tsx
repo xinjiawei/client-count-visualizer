@@ -5,7 +5,9 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowDownAZ, ArrowUpAZ, SortAsc, SortDesc } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, SortAsc, SortDesc, Save } from "lucide-react";
+import Cookies from "js-cookie";
+import { useToast } from "@/hooks/use-toast";
 
 interface BarChartComponentProps {
   data: ClientData;
@@ -18,18 +20,29 @@ interface FormattedData {
 
 type SortType = "default" | "asc" | "desc";
 
+// Cookie keys
+const COOKIE_SORT_TYPE = "client_dashboard_sort_type";
+const COOKIE_VISIBLE_ITEMS = "client_dashboard_visible_items";
+const COOKIE_EXPIRY = 30; // Days until cookie expires
+
 const BarChartComponent = ({ data }: BarChartComponentProps) => {
+  const { toast } = useToast();
+  
   // Format data for recharts
   const formattedData: FormattedData[] = Object.entries(data).map(([version, count]) => ({
     version,
     count,
   }));
 
+  // Load preferences from cookies or use defaults
+  const initialSortType = (Cookies.get(COOKIE_SORT_TYPE) as SortType) || "default";
+  const initialVisibleItems = Number(Cookies.get(COOKIE_VISIBLE_ITEMS)) || 20;
+
   // States
-  const [visibleItems, setVisibleItems] = useState(20);
+  const [visibleItems, setVisibleItems] = useState(initialVisibleItems);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [visibleData, setVisibleData] = useState<FormattedData[]>([]);
-  const [sortType, setSortType] = useState<SortType>("default");
+  const [sortType, setSortType] = useState<SortType>(initialSortType);
   
   // Sort data based on sort type
   const getSortedData = () => {
@@ -47,6 +60,17 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
     }
     
     return sortedData;
+  };
+
+  // Save preferences to cookies
+  const savePreferences = () => {
+    Cookies.set(COOKIE_SORT_TYPE, sortType, { expires: COOKIE_EXPIRY });
+    Cookies.set(COOKIE_VISIBLE_ITEMS, visibleItems.toString(), { expires: COOKIE_EXPIRY });
+    
+    toast({
+      title: "设置已保存",
+      description: "您的偏好设置已保存到 Cookie 中",
+    });
   };
 
   // Calculate bar width based on number of visible items
@@ -71,6 +95,12 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
     setScrollPosition(Math.floor(values[0]));
   };
 
+  // Update visible items and save to cookie
+  const handleVisibleItemsChange = (value: number) => {
+    setVisibleItems(value);
+    setScrollPosition(0); // Reset scroll position when changing visible items
+  };
+
   // Calculate maximum possible scroll position
   const maxScroll = Math.max(0, formattedData.length - visibleItems);
 
@@ -85,7 +115,7 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
           <select 
             className="px-2 py-1 border rounded-md text-sm bg-background"
             value={visibleItems}
-            onChange={(e) => setVisibleItems(Number(e.target.value))}
+            onChange={(e) => handleVisibleItemsChange(Number(e.target.value))}
           >
             <option value={10}>10</option>
             <option value={20}>20</option>
@@ -95,7 +125,7 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
         </div>
       </div>
 
-      <div className="flex gap-2 mb-2">
+      <div className="flex flex-wrap gap-2 mb-2">
         <Button 
           variant={sortType === "default" ? "default" : "outline"} 
           size="sm" 
@@ -119,6 +149,15 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
         >
           <SortDesc className="mr-1" size={16} />
           数量降序
+        </Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={savePreferences}
+          className="ml-auto"
+        >
+          <Save className="mr-1" size={16} />
+          保存设置
         </Button>
       </div>
 
