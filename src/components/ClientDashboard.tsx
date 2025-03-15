@@ -2,8 +2,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchClientData } from "@/services/apiService";
 import BarChartComponent from "@/components/BarChartComponent";
+import PieChartComponent from "@/components/PieChartComponent";
 import DataSummary from "@/components/DataSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ClientDashboard = () => {
   const { data, isLoading, error, refetch } = useQuery({
@@ -57,14 +59,34 @@ const ClientDashboard = () => {
       
       <DataSummary data={data} />
       
-      <Card>
-        <CardHeader>
-          <CardTitle>按版本划分的客户端数量</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <BarChartComponent data={data} />
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="bar" className="w-full">
+        <TabsList className="grid w-full max-w-md grid-cols-2 mb-4">
+          <TabsTrigger value="bar">柱状图</TabsTrigger>
+          <TabsTrigger value="pie">饼图</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="bar">
+          <Card>
+            <CardHeader>
+              <CardTitle>按版本划分的客户端数量</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BarChartComponent data={data} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="pie">
+          <Card>
+            <CardHeader>
+              <CardTitle>客户端版本分布</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PieChartComponent data={data} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
       
       <Card className="mt-6">
         <CardHeader>

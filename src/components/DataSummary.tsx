@@ -14,13 +14,6 @@ const DataSummary = ({ data }: DataSummaryProps) => {
   let topVersion = "";
   let topCount = 0;
   
-  // Find the latest version (assuming version format is semantic)
-  let latestVersion = "";
-  let versions = Object.keys(data).sort((a, b) => a.localeCompare(b));
-  if (versions.length > 0) {
-    latestVersion = versions[versions.length - 1];
-  }
-  
   for (const [version, count] of Object.entries(data)) {
     if (count > topCount) {
       topCount = count;
@@ -29,7 +22,7 @@ const DataSummary = ({ data }: DataSummaryProps) => {
   }
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">总客户端数量</CardTitle>
@@ -56,18 +49,6 @@ const DataSummary = ({ data }: DataSummaryProps) => {
           <div className="text-2xl font-bold">{topVersion}</div>
           <p className="text-xs text-muted-foreground">
             {topCount} 客户端 ({((topCount / totalClients) * 100).toFixed(1)}%)
-          </p>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium">最新的客户端</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{latestVersion}</div>
-          <p className="text-xs text-muted-foreground">
-            {data[latestVersion]} 客户端 ({((data[latestVersion] / totalClients) * 100).toFixed(1)}%)
           </p>
         </CardContent>
       </Card>
