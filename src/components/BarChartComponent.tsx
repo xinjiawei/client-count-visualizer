@@ -2,7 +2,6 @@
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from "recharts";
 import { ClientData } from "@/types/clientData";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowDownAZ, SortAsc, SortDesc } from "lucide-react";
@@ -37,8 +36,6 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
   const initialSortType = (Cookies.get(COOKIE_SORT_TYPE) as SortType) || "default";
 
   // States
-  const [scrollPosition, setScrollPosition] = useState(0);
-  const [visibleData, setVisibleData] = useState<FormattedData[]>([]);
   const [sortType, setSortType] = useState<SortType>(initialSortType);
   
   // Sort data based on sort type
@@ -67,19 +64,8 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
   // Calculate bar width based on data count
   const barWidth = Math.max(20, 1200 / formattedData.length);
   
-  // Update visible data when sort type or scroll position changes
-  useEffect(() => {
-    const sortedData = getSortedData();
-    setVisibleData(sortedData);
-  }, [formattedData, sortType]);
-
-  // Handle slider change for scrolling
-  const handleScrollChange = (values: number[]) => {
-    setScrollPosition(Math.floor(values[0]));
-  };
-
-  // Calculate maximum possible scroll position for the slider
-  const maxScroll = Math.max(0, formattedData.length - 20);
+  // Get sorted data
+  const visibleData = getSortedData();
 
   return (
     <div className="space-y-4">
@@ -130,24 +116,6 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
           </ResponsiveContainer>
         </div>
       </ScrollArea>
-      
-      {maxScroll > 0 && (
-        <div className="pt-2">
-          <Slider 
-            defaultValue={[0]} 
-            max={maxScroll} 
-            step={1} 
-            value={[scrollPosition]}
-            onValueChange={handleScrollChange}
-          />
-          <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>{formattedData[0]?.version}</span>
-            {maxScroll > 0 && formattedData.length > 1 && (
-              <span>{formattedData[formattedData.length - 1]?.version}</span>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
