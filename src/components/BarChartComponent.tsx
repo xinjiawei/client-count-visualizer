@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowDownAZ, SortAsc, SortDesc } from "lucide-react";
 import Cookies from "js-cookie";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BarChartComponentProps {
   data: ClientData;
@@ -25,6 +26,7 @@ const COOKIE_EXPIRY = 30; // Days until cookie expires
 
 const BarChartComponent = ({ data }: BarChartComponentProps) => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   // Format data for recharts
   const formattedData: FormattedData[] = Object.entries(data).map(([version, count]) => ({
@@ -37,6 +39,7 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
 
   // States
   const [sortType, setSortType] = useState<SortType>(initialSortType);
+  const [containerWidth, setContainerWidth] = useState(0);
   
   // Sort data based on sort type
   const getSortedData = () => {
@@ -61,8 +64,38 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
     Cookies.set(COOKIE_SORT_TYPE, sortType, { expires: COOKIE_EXPIRY });
   }, [sortType]);
 
-  // Calculate bar width based on data count
-  const barWidth = Math.max(20, 1200 / formattedData.length);
+  // Track container width for responsive display
+  useEffect(() => {
+    const updateWidth = () => {
+      const chartContainer = document.getElementById('chart-container');
+      if (chartContainer) {
+        setContainerWidth(chartContainer.offsetWidth);
+      }
+    };
+
+    // Initial measurement
+    updateWidth();
+
+    // Update on resize
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
+  
+  // Calculate bar width based on data count and container width
+  const calculateOptimalWidth = () => {
+    if (containerWidth <= 0) return 1200;
+    
+    // Estimate how many bars can fit comfortably
+    const minBarWidth = isMobile ? 40 : 30; // Wider bars on mobile
+    const spacing = isMobile ? 10 : 5;
+    const totalBarWidth = minBarWidth + spacing;
+    
+    // Calculate optimal chart width based on data count
+    return Math.max(containerWidth, formattedData.length * totalBarWidth);
+  };
+  
+  const chartWidth = calculateOptimalWidth();
+  const barWidth = Math.max(20, Math.min(80, chartWidth / formattedData.length - 10));
   
   // Get sorted data
   const visibleData = getSortedData();
@@ -103,17 +136,19 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
       </div>
 
       <ScrollArea className="h-[330px] w-full border rounded-lg p-4">
-        <div style={{ width: Math.max(800, visibleData.length * barWidth * 2) }}>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={visibleData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="version" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="count" name="客户端数量" fill="#3B82F6" barSize={barWidth} />
-            </BarChart>
-          </ResponsiveContainer>
+        <div id="chart-container" style={{ width: '100%', minWidth: '100%' }}>
+          <div style={{ width: chartWidth }}>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={visibleData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="version" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="count" name="客户端数量" fill="#3B82F6" barSize={barWidth} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </ScrollArea>
     </div>
