@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowDownAZ, ArrowUpAZ, SortAsc, SortDesc, Save } from "lucide-react";
+import { ArrowDownAZ, SortAsc, SortDesc } from "lucide-react";
 import Cookies from "js-cookie";
 import { useToast } from "@/hooks/use-toast";
 
@@ -62,16 +62,18 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
     return sortedData;
   };
 
-  // Save preferences to cookies
-  const savePreferences = () => {
+  // Auto-save preferences to cookies whenever they change
+  useEffect(() => {
     Cookies.set(COOKIE_SORT_TYPE, sortType, { expires: COOKIE_EXPIRY });
     Cookies.set(COOKIE_VISIBLE_ITEMS, visibleItems.toString(), { expires: COOKIE_EXPIRY });
     
+    // Optional: Show a subtle toast notification
     toast({
       title: "设置已保存",
-      description: "您的偏好设置已保存到 Cookie 中",
+      description: "您的偏好设置已自动保存",
+      duration: 1500,
     });
-  };
+  }, [sortType, visibleItems, toast]);
 
   // Calculate bar width based on number of visible items
   const barWidth = Math.max(30, 60 - visibleItems / 4);
@@ -149,15 +151,6 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
         >
           <SortDesc className="mr-1" size={16} />
           数量降序
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={savePreferences}
-          className="ml-auto"
-        >
-          <Save className="mr-1" size={16} />
-          保存设置
         </Button>
       </div>
 
