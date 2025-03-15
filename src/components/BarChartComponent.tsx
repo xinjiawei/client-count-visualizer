@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowDownAZ, ArrowUpAZ, SortAsc, SortDesc, Save } from "lucide-react";
+import { ArrowDownAZ, SortAsc, SortDesc } from "lucide-react";
 import Cookies from "js-cookie";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,7 +22,6 @@ type SortType = "default" | "asc" | "desc";
 
 // Cookie keys
 const COOKIE_SORT_TYPE = "client_dashboard_sort_type";
-const COOKIE_VISIBLE_ITEMS = "client_dashboard_visible_items";
 const COOKIE_EXPIRY = 30; // Days until cookie expires
 
 const BarChartComponent = ({ data }: BarChartComponentProps) => {
@@ -36,10 +35,8 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
 
   // Load preferences from cookies or use defaults
   const initialSortType = (Cookies.get(COOKIE_SORT_TYPE) as SortType) || "default";
-  const initialVisibleItems = Number(Cookies.get(COOKIE_VISIBLE_ITEMS)) || 20;
 
   // States
-  const [visibleItems, setVisibleItems] = useState(initialVisibleItems);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [visibleData, setVisibleData] = useState<FormattedData[]>([]);
   const [sortType, setSortType] = useState<SortType>(initialSortType);
@@ -62,66 +59,33 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
     return sortedData;
   };
 
-  // Save preferences to cookies
-  const savePreferences = () => {
+  // Save sort type to cookie whenever it changes
+  useEffect(() => {
     Cookies.set(COOKIE_SORT_TYPE, sortType, { expires: COOKIE_EXPIRY });
-    Cookies.set(COOKIE_VISIBLE_ITEMS, visibleItems.toString(), { expires: COOKIE_EXPIRY });
-    
-    toast({
-      title: "设置已保存",
-      description: "您的偏好设置已保存到 Cookie 中",
-    });
-  };
+  }, [sortType]);
 
-  // Calculate bar width based on number of visible items
-  const barWidth = Math.max(30, 60 - visibleItems / 4);
+  // Calculate bar width based on data count
+  const barWidth = Math.max(20, 1200 / formattedData.length);
   
-  // Update visible data when sort type, scroll position or visible items change
+  // Update visible data when sort type or scroll position changes
   useEffect(() => {
     const sortedData = getSortedData();
-    const maxScrollPosition = Math.max(0, sortedData.length - visibleItems);
-    const normalizedPosition = Math.min(scrollPosition, maxScrollPosition);
-    
-    const slicedData = sortedData.slice(
-      normalizedPosition, 
-      normalizedPosition + visibleItems
-    );
-    
-    setVisibleData(slicedData);
-  }, [formattedData, scrollPosition, visibleItems, sortType]);
+    setVisibleData(sortedData);
+  }, [formattedData, sortType]);
 
   // Handle slider change for scrolling
   const handleScrollChange = (values: number[]) => {
     setScrollPosition(Math.floor(values[0]));
   };
 
-  // Update visible items and save to cookie
-  const handleVisibleItemsChange = (value: number) => {
-    setVisibleItems(value);
-    setScrollPosition(0); // Reset scroll position when changing visible items
-  };
-
-  // Calculate maximum possible scroll position
-  const maxScroll = Math.max(0, formattedData.length - visibleItems);
+  // Calculate maximum possible scroll position for the slider
+  const maxScroll = Math.max(0, formattedData.length - 20);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex justify-between mb-2">
         <div className="text-sm text-muted-foreground">
-          显示 {visibleItems} 个版本 (共 {formattedData.length} 个)
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground whitespace-nowrap">显示数量:</span>
-          <select 
-            className="px-2 py-1 border rounded-md text-sm bg-background"
-            value={visibleItems}
-            onChange={(e) => handleVisibleItemsChange(Number(e.target.value))}
-          >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={30}>30</option>
-            <option value={50}>50</option>
-          </select>
+          显示全部 {formattedData.length} 个版本
         </div>
       </div>
 
@@ -149,15 +113,6 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
         >
           <SortDesc className="mr-1" size={16} />
           数量降序
-        </Button>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={savePreferences}
-          className="ml-auto"
-        >
-          <Save className="mr-1" size={16} />
-          保存设置
         </Button>
       </div>
 
