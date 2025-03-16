@@ -22,14 +22,16 @@ const ClientDashboard = () => {
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["clientData"],
     queryFn: fetchClientData,
-    onError: (error) => {
-      toast.error(t('dashboard.fetchError'), {
-        description: error instanceof Error ? error.message : String(error)
-      });
-    },
     onSuccess: (data) => {
       if (data && Object.keys(data).length > 0) {
         toast.success(t('dashboard.dataRefreshed'));
+      }
+    },
+    meta: {
+      onError: (error: any) => {
+        toast.error(t('dashboard.fetchError'), {
+          description: error instanceof Error ? error.message : String(error)
+        });
       }
     }
   });
@@ -95,7 +97,8 @@ const ClientDashboard = () => {
           <Button 
             onClick={() => refetch()}
             disabled={isRefetching}
-            className="px-3 py-1 bg-secondary rounded-md hover:bg-secondary/80 transition-colors text-sm"
+            variant="primary"
+            className="px-3 py-1 rounded-md transition-colors text-sm bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isRefetching ? (
               <>

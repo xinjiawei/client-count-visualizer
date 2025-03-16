@@ -62,6 +62,9 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
     return sortedData;
   };
 
+  // Get sorted data for the current sort type
+  const sortedData = getSortedData();
+
   // Measure container width on mount and window resize
   useEffect(() => {
     const updateWidth = () => {
@@ -77,6 +80,11 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
       window.removeEventListener('resize', updateWidth);
     };
   }, []);
+
+  // Reset scroll position when sort type changes
+  useEffect(() => {
+    setScrollPosition(0);
+  }, [sortType]);
 
   // Auto-save preferences to cookies whenever they change
   useEffect(() => {
@@ -131,7 +139,7 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
   };
 
   // Calculate maximum possible scroll position
-  const maxScroll = Math.max(0, formattedData.length - visibleItems);
+  const maxScroll = Math.max(0, sortedData.length - visibleItems);
   const barWidth = calculateBarWidth();
 
   return (
@@ -191,9 +199,9 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
             onValueChange={handleScrollChange}
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>{formattedData[0]?.version}</span>
-            {maxScroll > 0 && formattedData.length > 1 && (
-              <span>{formattedData[formattedData.length - 1]?.version}</span>
+            <span>{sortedData[0]?.version}</span>
+            {maxScroll > 0 && sortedData.length > 1 && (
+              <span>{sortedData[sortedData.length - 1]?.version}</span>
             )}
           </div>
         </div>

@@ -1,11 +1,11 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 
-// 支持的语言类型
-export type LanguageType = 'zh' | 'en';
+// Available languages
+export type LanguageType = 'zh' | 'en' | 'ja';
 
-// 语言资源定义
+// Language resources structure
 export interface LanguageResources {
   dashboard: {
     title: string;
@@ -38,147 +38,178 @@ export interface LanguageResources {
   };
 }
 
-// 中文资源
-const zhResources: LanguageResources = {
-  dashboard: {
-    title: '客户端数量可视化',
-    refreshButton: '刷新数据',
-    refreshing: '刷新中...',
-    sortByVersion: '版本排序',
-    sortAscending: '数量升序',
-    sortDescending: '数量降序',
-    noData: '没有数据',
-    loading: '加载数据中...',
-    error: '加载数据时出错',
-    retry: '重试',
-    rawData: '原始数据',
-    version: '版本',
-    clientCount: '客户端数量',
-    fetchError: '获取数据失败',
-    dataRefreshed: '数据已更新',
+// Define translations
+const translations: Record<LanguageType, LanguageResources> = {
+  zh: {
+    dashboard: {
+      title: '客户端统计面板',
+      refreshButton: '刷新数据',
+      refreshing: '刷新中...',
+      sortByVersion: '版本排序',
+      sortAscending: '数量升序',
+      sortDescending: '数量降序',
+      noData: '没有数据',
+      loading: '加载中...',
+      error: '出错了',
+      retry: '重试',
+      rawData: '原始数据',
+      version: '版本',
+      clientCount: '客户端数量',
+      fetchError: '获取数据失败',
+      dataRefreshed: '数据已刷新',
+    },
+    summary: {
+      totalClients: '总客户端数',
+      versionCount: '版本数量',
+      popularVersion: '最常用版本',
+      latestVersion: '最新版本',
+      clients: '客户端',
+    },
+    chart: {
+      showingVersions: '显示 {count} 个版本 (共 {total} 个)',
+      displayCount: '显示数量',
+      clientCount: '客户端数量',
+    },
   },
-  summary: {
-    totalClients: '总客户端数量',
-    versionCount: '版本数量',
-    popularVersion: '最受欢迎版本',
-    latestVersion: '最新的客户端',
-    clients: '客户端',
+  en: {
+    dashboard: {
+      title: 'Client Dashboard',
+      refreshButton: 'Refresh Data',
+      refreshing: 'Refreshing...',
+      sortByVersion: 'Sort by Version',
+      sortAscending: 'Sort Ascending',
+      sortDescending: 'Sort Descending',
+      noData: 'No Data',
+      loading: 'Loading...',
+      error: 'Error',
+      retry: 'Retry',
+      rawData: 'Raw Data',
+      version: 'Version',
+      clientCount: 'Client Count',
+      fetchError: 'Failed to fetch data',
+      dataRefreshed: 'Data refreshed',
+    },
+    summary: {
+      totalClients: 'Total Clients',
+      versionCount: 'Version Count',
+      popularVersion: 'Most Popular Version',
+      latestVersion: 'Latest Version',
+      clients: 'clients',
+    },
+    chart: {
+      showingVersions: 'Showing {count} of {total} versions',
+      displayCount: 'Display Count',
+      clientCount: 'Client Count',
+    },
   },
-  chart: {
-    showingVersions: '显示 {count} 个版本 (共 {total} 个)',
-    displayCount: '显示数量:',
-    clientCount: '客户端数量',
+  ja: {
+    dashboard: {
+      title: 'クライアントダッシュボード',
+      refreshButton: 'データを更新',
+      refreshing: '更新中...',
+      sortByVersion: 'バージョンで並べ替え',
+      sortAscending: '昇順で並べ替え',
+      sortDescending: '降順で並べ替え',
+      noData: 'データなし',
+      loading: '読み込み中...',
+      error: 'エラー',
+      retry: '再試行',
+      rawData: '生データ',
+      version: 'バージョン',
+      clientCount: 'クライアント数',
+      fetchError: 'データの取得に失敗しました',
+      dataRefreshed: 'データが更新されました',
+    },
+    summary: {
+      totalClients: '合計クライアント',
+      versionCount: 'バージョン数',
+      popularVersion: '最も人気のバージョン',
+      latestVersion: '最新バージョン',
+      clients: 'クライアント',
+    },
+    chart: {
+      showingVersions: '{total}バージョン中{count}を表示',
+      displayCount: '表示数',
+      clientCount: 'クライアント数',
+    },
   },
 };
 
-// 英文资源
-const enResources: LanguageResources = {
-  dashboard: {
-    title: 'Client Count Visualization',
-    refreshButton: 'Refresh Data',
-    refreshing: 'Refreshing...',
-    sortByVersion: 'Sort by Version',
-    sortAscending: 'Sort Ascending',
-    sortDescending: 'Sort Descending',
-    noData: 'No Data',
-    loading: 'Loading data...',
-    error: 'Error loading data',
-    retry: 'Retry',
-    rawData: 'Raw Data',
-    version: 'Version',
-    clientCount: 'Client Count',
-    fetchError: 'Failed to fetch data',
-    dataRefreshed: 'Data refreshed',
-  },
-  summary: {
-    totalClients: 'Total Clients',
-    versionCount: 'Version Count',
-    popularVersion: 'Most Popular Version',
-    latestVersion: 'Latest Version',
-    clients: 'clients',
-  },
-  chart: {
-    showingVersions: 'Showing {count} versions (out of {total})',
-    displayCount: 'Display count:',
-    clientCount: 'Client Count',
-  },
-};
-
-// 所有资源的映射
-const resources: Record<LanguageType, LanguageResources> = {
-  zh: zhResources,
-  en: enResources,
-};
-
-// 语言上下文类型
+// Language context type
 interface LanguageContextType {
   language: LanguageType;
-  setLanguage: (lang: LanguageType) => void;
-  t: (key: string, params?: Record<string, string | number>) => string;
+  setLanguage: (language: LanguageType) => void;
+  t: (key: string, params?: Record<string, any>) => string;
 }
 
-// 创建语言上下文
+// Create context
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// Cookie 键名
-const LANGUAGE_COOKIE = 'preferred_language';
-
-// 语言提供者组件属性
+// Language provider props
 interface LanguageProviderProps {
   children: ReactNode;
 }
 
-// 语言提供者组件
-export const LanguageProvider = ({ children }: LanguageProviderProps) => {
-  // 从 Cookie 获取初始语言，默认为中文
-  const savedLanguage = Cookies.get(LANGUAGE_COOKIE) as LanguageType;
-  const [language, setLanguage] = useState<LanguageType>(savedLanguage || 'zh');
+// Cookie name for storing language preference
+const LANGUAGE_COOKIE = 'preferred_language';
 
-  // 更改语言并存储到 Cookie
-  const handleSetLanguage = (lang: LanguageType) => {
-    setLanguage(lang);
-    Cookies.set(LANGUAGE_COOKIE, lang, { expires: 365 });
+// Language provider component
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
+  // Get initial language from cookie or use Chinese as default
+  const getInitialLanguage = (): LanguageType => {
+    const savedLanguage = Cookies.get(LANGUAGE_COOKIE) as LanguageType | undefined;
+    return savedLanguage || 'zh';
   };
 
-  // 翻译函数
-  const t = (key: string, params?: Record<string, string | number>): string => {
+  const [language, setLanguage] = useState<LanguageType>(getInitialLanguage);
+
+  // Update cookie when language changes
+  useEffect(() => {
+    Cookies.set(LANGUAGE_COOKIE, language, { expires: 365 });
+  }, [language]);
+
+  // Translation function
+  const t = (key: string, params?: Record<string, any>): string => {
+    // Split key by dots to access nested properties
     const keys = key.split('.');
-    let value = resources[language];
     
+    // Get the translation resource
+    let translation: any = translations[language];
+    
+    // Navigate through the nested properties
     for (const k of keys) {
-      if (value[k as keyof typeof value]) {
-        value = value[k as keyof typeof value];
+      if (translation && k in translation) {
+        translation = translation[k];
       } else {
-        return key; // 如果找不到键，返回原始键
+        console.warn(`Translation key not found: ${key}`);
+        return key;
       }
     }
-
-    let result = value as unknown as string;
     
-    // 替换参数
-    if (params) {
-      Object.entries(params).forEach(([paramKey, paramValue]) => {
-        result = result.replace(`{${paramKey}}`, String(paramValue));
-      });
+    // Return the translation
+    if (typeof translation === 'string') {
+      if (params) {
+        // Replace placeholders with parameters
+        return Object.entries(params).reduce(
+          (result, [param, value]) => result.replace(`{${param}}`, String(value)),
+          translation
+        );
+      }
+      return translation;
     }
     
-    return result;
-  };
-
-  const contextValue: LanguageContextType = {
-    language,
-    setLanguage: handleSetLanguage,
-    t,
+    console.warn(`Invalid translation for key: ${key}`);
+    return key;
   };
 
   return (
-    <LanguageContext.Provider value={contextValue}>
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
 };
 
-// 自定义钩子，用于在组件中访问语言上下文
+// Hook for using language context
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
