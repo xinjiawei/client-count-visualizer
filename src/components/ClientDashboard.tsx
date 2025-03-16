@@ -5,10 +5,11 @@ import BarChartComponent from "@/components/BarChartComponent";
 import DataSummary from "@/components/DataSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
-import { ArrowDownAZ, SortAsc, SortDesc } from "lucide-react";
+import { ArrowDownAZ, SortAsc, SortDesc, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { toast } from "sonner";
 
 // 定义排序类型
 export type SortType = "default" | "asc" | "desc";
@@ -18,9 +19,19 @@ const ClientDashboard = () => {
   // 添加共享的排序状态
   const [sortType, setSortType] = useState<SortType>("default");
   
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["clientData"],
     queryFn: fetchClientData,
+    onError: (error) => {
+      toast.error(t('dashboard.fetchError'), {
+        description: error instanceof Error ? error.message : String(error)
+      });
+    },
+    onSuccess: (data) => {
+      if (data && Object.keys(data).length > 0) {
+        toast.success(t('dashboard.dataRefreshed'));
+      }
+    }
   });
 
   if (isLoading) {
@@ -35,7 +46,7 @@ const ClientDashboard = () => {
     return (
       <div className="text-center py-10">
         <h3 className="text-xl font-semibold text-destructive mb-2">{t('dashboard.error')}</h3>
-        <p className="text-muted-foreground mb-4">无法从API获取客户端数据。</p>
+        <p className="text-muted-foreground mb-4">{error instanceof Error ? error.message : String(error)}</p>
         <button 
           onClick={() => refetch()}
           className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
@@ -81,12 +92,23 @@ const ClientDashboard = () => {
         <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
-          <button 
+          <Button 
             onClick={() => refetch()}
+            disabled={isRefetching}
             className="px-3 py-1 bg-secondary rounded-md hover:bg-secondary/80 transition-colors text-sm"
           >
-            {t('dashboard.refreshButton')}
-          </button>
+            {isRefetching ? (
+              <>
+                <RefreshCw className="mr-1 h-4 w-4 animate-spin" />
+                {t('dashboard.refreshing')}
+              </>
+            ) : (
+              <>
+                <RefreshCw className="mr-1 h-4 w-4" />
+                {t('dashboard.refreshButton')}
+              </>
+            )}
+          </Button>
         </div>
       </div>
       

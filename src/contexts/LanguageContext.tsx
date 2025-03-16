@@ -10,6 +10,7 @@ export interface LanguageResources {
   dashboard: {
     title: string;
     refreshButton: string;
+    refreshing: string;
     sortByVersion: string;
     sortAscending: string;
     sortDescending: string;
@@ -20,6 +21,8 @@ export interface LanguageResources {
     rawData: string;
     version: string;
     clientCount: string;
+    fetchError: string;
+    dataRefreshed: string;
   };
   summary: {
     totalClients: string;
@@ -40,6 +43,7 @@ const zhResources: LanguageResources = {
   dashboard: {
     title: '客户端数量可视化',
     refreshButton: '刷新数据',
+    refreshing: '刷新中...',
     sortByVersion: '版本排序',
     sortAscending: '数量升序',
     sortDescending: '数量降序',
@@ -50,6 +54,8 @@ const zhResources: LanguageResources = {
     rawData: '原始数据',
     version: '版本',
     clientCount: '客户端数量',
+    fetchError: '获取数据失败',
+    dataRefreshed: '数据已更新',
   },
   summary: {
     totalClients: '总客户端数量',
@@ -70,6 +76,7 @@ const enResources: LanguageResources = {
   dashboard: {
     title: 'Client Count Visualization',
     refreshButton: 'Refresh Data',
+    refreshing: 'Refreshing...',
     sortByVersion: 'Sort by Version',
     sortAscending: 'Sort Ascending',
     sortDescending: 'Sort Descending',
@@ -80,6 +87,8 @@ const enResources: LanguageResources = {
     rawData: 'Raw Data',
     version: 'Version',
     clientCount: 'Client Count',
+    fetchError: 'Failed to fetch data',
+    dataRefreshed: 'Data refreshed',
   },
   summary: {
     totalClients: 'Total Clients',

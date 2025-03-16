@@ -13,6 +13,11 @@ export async function fetchClientData(): Promise<ClientData> {
     
     const apiResponse: ApiResponse = await response.json();
     
+    // Check the API response code
+    if (apiResponse.code !== 200) {
+      throw new Error(apiResponse.msg || 'API returned an error');
+    }
+    
     // 将数组数据转换为 {version: count} 格式的对象
     const clientData: ClientData = {};
     apiResponse.data.list.forEach(item => {
