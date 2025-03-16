@@ -4,14 +4,14 @@ import { ClientData } from "@/types/clientData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowDownAZ, SortAsc, SortDesc } from "lucide-react";
 import Cookies from "js-cookie";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SortType } from "@/components/ClientDashboard";
 
 interface BarChartComponentProps {
   data: ClientData;
+  sortType: SortType;
 }
 
 interface FormattedData {
@@ -19,14 +19,11 @@ interface FormattedData {
   count: number;
 }
 
-type SortType = "default" | "asc" | "desc";
-
 // Cookie keys
-const COOKIE_SORT_TYPE = "client_dashboard_sort_type";
 const COOKIE_VISIBLE_ITEMS = "client_dashboard_visible_items";
 const COOKIE_EXPIRY = 30; // Days until cookie expires
 
-const BarChartComponent = ({ data }: BarChartComponentProps) => {
+const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
   const { toast } = useToast();
   const chartContainerRef = useRef<HTMLDivElement>(null);
   
@@ -37,14 +34,12 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
   }));
 
   // Load preferences from cookies or use defaults
-  const initialSortType = (Cookies.get(COOKIE_SORT_TYPE) as SortType) || "default";
   const initialVisibleItems = Number(Cookies.get(COOKIE_VISIBLE_ITEMS)) || 20;
 
   // States
   const [visibleItems, setVisibleItems] = useState(initialVisibleItems);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [visibleData, setVisibleData] = useState<FormattedData[]>([]);
-  const [sortType, setSortType] = useState<SortType>(initialSortType);
   const [containerWidth, setContainerWidth] = useState(0);
   
   // Sort data based on sort type
@@ -83,7 +78,6 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
 
   // Auto-save preferences to cookies whenever they change
   useEffect(() => {
-    Cookies.set(COOKIE_SORT_TYPE, sortType, { expires: COOKIE_EXPIRY });
     Cookies.set(COOKIE_VISIBLE_ITEMS, visibleItems.toString(), { expires: COOKIE_EXPIRY });
     
     // Optional: Show a subtle toast notification
@@ -92,7 +86,7 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
       description: "您的偏好设置已自动保存",
       duration: 1500,
     });
-  }, [sortType, visibleItems, toast]);
+  }, [visibleItems, toast]);
 
   // Calculate dynamic bar width based on container width and number of items
   const calculateBarWidth = () => {
@@ -161,33 +155,6 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
             </SelectContent>
           </Select>
         </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2 mb-2">
-        <Button 
-          variant={sortType === "default" ? "default" : "outline"} 
-          size="sm" 
-          onClick={() => setSortType("default")}
-        >
-          <ArrowDownAZ className="mr-1" size={16} />
-          版本排序
-        </Button>
-        <Button 
-          variant={sortType === "asc" ? "default" : "outline"} 
-          size="sm" 
-          onClick={() => setSortType("asc")}
-        >
-          <SortAsc className="mr-1" size={16} />
-          数量升序
-        </Button>
-        <Button 
-          variant={sortType === "desc" ? "default" : "outline"} 
-          size="sm" 
-          onClick={() => setSortType("desc")}
-        >
-          <SortDesc className="mr-1" size={16} />
-          数量降序
-        </Button>
       </div>
 
       <ScrollArea className="h-[330px] w-full border rounded-lg p-4">

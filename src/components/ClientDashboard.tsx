@@ -4,8 +4,17 @@ import { fetchClientData } from "@/services/apiService";
 import BarChartComponent from "@/components/BarChartComponent";
 import DataSummary from "@/components/DataSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { ArrowDownAZ, SortAsc, SortDesc } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+// 定义排序类型
+export type SortType = "default" | "asc" | "desc";
 
 const ClientDashboard = () => {
+  // 添加共享的排序状态
+  const [sortType, setSortType] = useState<SortType>("default");
+  
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["clientData"],
     queryFn: fetchClientData,
@@ -43,6 +52,26 @@ const ClientDashboard = () => {
     );
   }
 
+  // 根据当前排序类型对数据进行排序
+  const getSortedData = () => {
+    const entries = Object.entries(data);
+    
+    if (sortType === "default") {
+      // 按版本排序（默认）
+      return entries.sort((a, b) => a[0].localeCompare(b[0]));
+    } else if (sortType === "asc") {
+      // 按数量升序
+      return entries.sort((a, b) => a[1] - b[1]);
+    } else if (sortType === "desc") {
+      // 按数量降序
+      return entries.sort((a, b) => b[1] - a[1]);
+    }
+    
+    return entries;
+  };
+
+  const sortedData = getSortedData();
+
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
@@ -57,12 +86,38 @@ const ClientDashboard = () => {
       
       <DataSummary data={data} />
       
-      <Card>
-        <CardHeader>
+      <Card className="mb-6">
+        <CardHeader className="pb-2">
           <CardTitle>按版本划分的客户端数量</CardTitle>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Button 
+              variant={sortType === "default" ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => setSortType("default")}
+            >
+              <ArrowDownAZ className="mr-1" size={16} />
+              版本排序
+            </Button>
+            <Button 
+              variant={sortType === "asc" ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => setSortType("asc")}
+            >
+              <SortAsc className="mr-1" size={16} />
+              数量升序
+            </Button>
+            <Button 
+              variant={sortType === "desc" ? "default" : "outline"} 
+              size="sm" 
+              onClick={() => setSortType("desc")}
+            >
+              <SortDesc className="mr-1" size={16} />
+              数量降序
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <BarChartComponent data={data} />
+          <BarChartComponent data={data} sortType={sortType} />
         </CardContent>
       </Card>
       
@@ -80,14 +135,12 @@ const ClientDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(data)
-                  .sort((a, b) => a[0].localeCompare(b[0]))
-                  .map(([version, count]) => (
-                    <tr key={version}>
-                      <td className="border px-4 py-2">{version}</td>
-                      <td className="border px-4 py-2">{count}</td>
-                    </tr>
-                  ))}
+                {sortedData.map(([version, count]) => (
+                  <tr key={version}>
+                    <td className="border px-4 py-2">{version}</td>
+                    <td className="border px-4 py-2">{count}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
