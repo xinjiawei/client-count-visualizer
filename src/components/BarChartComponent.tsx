@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SortType } from "@/components/ClientDashboard";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface BarChartComponentProps {
   data: ClientData;
@@ -24,6 +25,7 @@ const COOKIE_VISIBLE_ITEMS = "client_dashboard_visible_items";
 const COOKIE_EXPIRY = 30; // Days until cookie expires
 
 const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
+  const { t } = useLanguage();
   const { toast } = useToast();
   const chartContainerRef = useRef<HTMLDivElement>(null);
   
@@ -136,10 +138,10 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
         <div className="text-sm text-muted-foreground">
-          显示 {visibleItems} 个版本 (共 {formattedData.length} 个)
+          {t('chart.showingVersions', { count: visibleItems, total: formattedData.length })}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground whitespace-nowrap">显示数量:</span>
+          <span className="text-sm text-muted-foreground whitespace-nowrap">{t('chart.displayCount')}</span>
           <Select 
             value={visibleItems.toString()} 
             onValueChange={handleVisibleItemsChange}
@@ -173,7 +175,7 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="count" name="客户端数量" fill="#3B82F6" />
+              <Bar dataKey="count" name={t('chart.clientCount')} fill="#3B82F6" />
             </BarChart>
           </ResponsiveContainer>
         </div>
