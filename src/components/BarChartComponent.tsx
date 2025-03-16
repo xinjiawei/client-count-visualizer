@@ -3,11 +3,12 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Toolti
 import { ClientData } from "@/types/clientData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowDownAZ, SortAsc, SortDesc } from "lucide-react";
 import Cookies from "js-cookie";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface BarChartComponentProps {
   data: ClientData;
@@ -27,6 +28,7 @@ const COOKIE_EXPIRY = 30; // Days until cookie expires
 
 const BarChartComponent = ({ data }: BarChartComponentProps) => {
   const { toast } = useToast();
+  const chartContainerRef = useRef<HTMLDivElement>(null);
   
   // Format data for recharts
   const formattedData: FormattedData[] = Object.entries(data).map(([version, count]) => ({
@@ -43,6 +45,7 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [visibleData, setVisibleData] = useState<FormattedData[]>([]);
   const [sortType, setSortType] = useState<SortType>(initialSortType);
+  const [containerWidth, setContainerWidth] = useState(0);
   
   // Sort data based on sort type
   const getSortedData = () => {
@@ -62,6 +65,22 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
     return sortedData;
   };
 
+  // Measure container width on mount and window resize
+  useEffect(() => {
+    const updateWidth = () => {
+      if (chartContainerRef.current) {
+        setContainerWidth(chartContainerRef.current.clientWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    
+    return () => {
+      window.removeEventListener('resize', updateWidth);
+    };
+  }, []);
+
   // Auto-save preferences to cookies whenever they change
   useEffect(() => {
     Cookies.set(COOKIE_SORT_TYPE, sortType, { expires: COOKIE_EXPIRY });
@@ -75,8 +94,19 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
     });
   }, [sortType, visibleItems, toast]);
 
-  // Calculate bar width based on number of visible items
-  const barWidth = Math.max(30, 60 - visibleItems / 4);
+  // Calculate dynamic bar width based on container width and number of items
+  const calculateBarWidth = () => {
+    if (containerWidth === 0) return 40; // Default fallback
+    
+    // Reserve some space for margins and axes (approximately 80px)
+    const availableWidth = Math.max(containerWidth - 80, 300);
+    
+    // Calculate width per bar with some spacing between bars
+    let width = Math.floor(availableWidth / visibleItems) - 5;
+    
+    // Ensure the width is within reasonable bounds
+    return Math.max(10, Math.min(width, 60));
+  };
   
   // Update visible data when sort type, scroll position or visible items change
   useEffect(() => {
@@ -97,14 +127,16 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
     setScrollPosition(Math.floor(values[0]));
   };
 
-  // Update visible items and save to cookie
-  const handleVisibleItemsChange = (value: number) => {
-    setVisibleItems(value);
+  // Handle visible items change
+  const handleVisibleItemsChange = (value: string) => {
+    const numValue = parseInt(value, 10);
+    setVisibleItems(numValue);
     setScrollPosition(0); // Reset scroll position when changing visible items
   };
 
   // Calculate maximum possible scroll position
   const maxScroll = Math.max(0, formattedData.length - visibleItems);
+  const barWidth = calculateBarWidth();
 
   return (
     <div className="space-y-4">
@@ -114,16 +146,20 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground whitespace-nowrap">显示数量:</span>
-          <select 
-            className="px-2 py-1 border rounded-md text-sm bg-background"
-            value={visibleItems}
-            onChange={(e) => handleVisibleItemsChange(Number(e.target.value))}
+          <Select 
+            value={visibleItems.toString()} 
+            onValueChange={handleVisibleItemsChange}
           >
-            <option value={10}>10</option>
-            <option value={20}>20</option>
-            <option value={30}>30</option>
-            <option value={50}>50</option>
-          </select>
+            <SelectTrigger className="w-20">
+              <SelectValue placeholder={visibleItems.toString()} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="30">30</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -155,15 +191,22 @@ const BarChartComponent = ({ data }: BarChartComponentProps) => {
       </div>
 
       <ScrollArea className="h-[330px] w-full border rounded-lg p-4">
-        <div style={{ width: Math.max(800, visibleData.length * barWidth * 2) }}>
+        <div 
+          ref={chartContainerRef} 
+          className="w-full"
+        >
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={visibleData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <BarChart 
+              data={visibleData} 
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              barSize={barWidth}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="version" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="count" name="客户端数量" fill="#3B82F6" barSize={barWidth} />
+              <Bar dataKey="count" name="客户端数量" fill="#3B82F6" />
             </BarChart>
           </ResponsiveContainer>
         </div>
