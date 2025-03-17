@@ -10,24 +10,27 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // 定义排序类型
 export type SortType = "default" | "asc" | "desc";
 
 const ClientDashboard = () => {
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   // 添加共享的排序状态
   const [sortType, setSortType] = useState<SortType>("default");
   
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["clientData"],
     queryFn: fetchClientData,
-    onSettled: (data, error) => {
-      if (data && !error && Object.keys(data).length > 0) {
+    onSuccess: (data) => {
+      if (data && Object.keys(data).length > 0) {
         toast.success(t('dashboard.dataRefreshed'));
       }
-      
-      if (error) {
+    },
+    meta: {
+      onError: (error: any) => {
         toast.error(t('dashboard.fetchError'), {
           description: error instanceof Error ? error.message : String(error)
         });
@@ -89,7 +92,8 @@ const ClientDashboard = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
+      {/* Responsive header area with flex-col on mobile */}
+      <div className={`flex ${isMobile ? 'flex-col space-y-4' : 'justify-between'} items-${isMobile ? 'start' : 'center'} mb-6`}>
         <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
@@ -119,30 +123,34 @@ const ClientDashboard = () => {
       <Card className="mb-6">
         <CardHeader className="pb-2">
           <CardTitle>{t('dashboard.clientCount')}</CardTitle>
+          {/* Responsive sort buttons - flex-wrap helps on mobile */}
           <div className="flex flex-wrap gap-2 mt-2">
             <Button 
               variant={sortType === "default" ? "default" : "outline"} 
               size="sm" 
               onClick={() => setSortType("default")}
+              className="text-xs sm:text-sm"
             >
               <ArrowDownAZ className="mr-1" size={16} />
-              {t('dashboard.sortByVersion')}
+              {isMobile ? "" : t('dashboard.sortByVersion')}
             </Button>
             <Button 
               variant={sortType === "asc" ? "default" : "outline"} 
               size="sm" 
               onClick={() => setSortType("asc")}
+              className="text-xs sm:text-sm"
             >
               <SortAsc className="mr-1" size={16} />
-              {t('dashboard.sortAscending')}
+              {isMobile ? "" : t('dashboard.sortAscending')}
             </Button>
             <Button 
               variant={sortType === "desc" ? "default" : "outline"} 
               size="sm" 
               onClick={() => setSortType("desc")}
+              className="text-xs sm:text-sm"
             >
               <SortDesc className="mr-1" size={16} />
-              {t('dashboard.sortDescending')}
+              {isMobile ? "" : t('dashboard.sortDescending')}
             </Button>
           </div>
         </CardHeader>
