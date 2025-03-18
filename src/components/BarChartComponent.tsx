@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SortType } from "@/components/ClientDashboard";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useCookieConsent } from "@/hooks/use-cookie-consent";
 
 interface BarChartComponentProps {
   data: ClientData;
@@ -25,8 +26,9 @@ const COOKIE_VISIBLE_ITEMS = "client_dashboard_visible_items";
 const COOKIE_EXPIRY = 30; // Days until cookie expires
 
 const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
+  const { hasConsent } = useCookieConsent();
   const chartContainerRef = useRef<HTMLDivElement>(null);
   
   // Format data for recharts
@@ -36,10 +38,15 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
   }));
 
   // Load preferences from cookies or use defaults
-  const initialVisibleItems = Number(Cookies.get(COOKIE_VISIBLE_ITEMS)) || 20;
+  const getInitialVisibleItems = () => {
+    if (hasConsent) {
+      return Number(Cookies.get(COOKIE_VISIBLE_ITEMS)) || 20;
+    }
+    return 20;
+  };
 
   // States
-  const [visibleItems, setVisibleItems] = useState(initialVisibleItems);
+  const [visibleItems, setVisibleItems] = useState(getInitialVisibleItems);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [visibleData, setVisibleData] = useState<FormattedData[]>([]);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -88,15 +95,17 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
 
   // Auto-save preferences to cookies whenever they change
   useEffect(() => {
-    Cookies.set(COOKIE_VISIBLE_ITEMS, visibleItems.toString(), { expires: COOKIE_EXPIRY });
-    
-    // Optional: Show a subtle toast notification
-    toast({
-      title: "设置已保存",
-      description: "您的偏好设置已自动保存",
-      duration: 1500,
-    });
-  }, [visibleItems, toast]);
+    if (hasConsent) {
+      Cookies.set(COOKIE_VISIBLE_ITEMS, visibleItems.toString(), { expires: COOKIE_EXPIRY });
+      
+      // Show toast notification in the current language
+      toast({
+        title: t('preferences.saved'),
+        description: t('preferences.autoSaved'),
+        duration: 1500,
+      });
+    }
+  }, [visibleItems, toast, t, hasConsent]);
 
   // Calculate dynamic bar width based on container width and number of items
   const calculateBarWidth = () => {

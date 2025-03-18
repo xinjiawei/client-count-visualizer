@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { fetchClientData } from "@/services/apiService";
 import BarChartComponent from "@/components/BarChartComponent";
@@ -10,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Footer from "@/components/Footer";
 
 // 定义排序类型
 export type SortType = "default" | "asc" | "desc";
@@ -23,16 +25,15 @@ const ClientDashboard = () => {
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["clientData"],
     queryFn: fetchClientData,
-    onSettled: (data, error) => {
-      if (data && !error && Object.keys(data).length > 0) {
+    onSuccess: (data) => {
+      if (data && Object.keys(data).length > 0) {
         toast.success(t('dashboard.dataRefreshed'));
       }
-      
-      if (error) {
-        toast.error(t('dashboard.fetchError'), {
-          description: error instanceof Error ? error.message : String(error)
-        });
-      }
+    },
+    onError: (error) => {
+      toast.error(t('dashboard.fetchError'), {
+        description: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 
@@ -89,7 +90,7 @@ const ClientDashboard = () => {
   const sortedData = getSortedData();
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 min-h-screen flex flex-col">
       {/* Responsive header area with flex-col on mobile */}
       <div className={`flex ${isMobile ? 'flex-col space-y-4' : 'justify-between'} items-${isMobile ? 'start' : 'center'} mb-6`}>
         <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
@@ -157,7 +158,7 @@ const ClientDashboard = () => {
         </CardContent>
       </Card>
       
-      <Card className="mt-6">
+      <Card className="mt-6 flex-grow">
         <CardHeader>
           <CardTitle>{t('dashboard.rawData')}</CardTitle>
         </CardHeader>
@@ -182,6 +183,8 @@ const ClientDashboard = () => {
           </div>
         </CardContent>
       </Card>
+      
+      <Footer />
     </div>
   );
 };

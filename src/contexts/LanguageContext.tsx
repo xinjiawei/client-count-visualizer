@@ -36,6 +36,23 @@ export interface LanguageResources {
     displayCount: string;
     clientCount: string;
   };
+  preferences: {
+    saved: string;
+    autoSaved: string;
+  };
+  cookies: {
+    title: string;
+    description: string;
+    accept: string;
+    decline: string;
+    settings: string;
+    necessary: string;
+    preferences: string;
+    manage: string;
+    footer: string;
+    save: string;
+    close: string;
+  };
 }
 
 // Define translations
@@ -70,6 +87,23 @@ const translations: Record<LanguageType, LanguageResources> = {
       displayCount: '显示数量',
       clientCount: '客户端数量',
     },
+    preferences: {
+      saved: '设置已保存',
+      autoSaved: '您的偏好设置已自动保存',
+    },
+    cookies: {
+      title: '管理 Cookie 喜好设定',
+      description: '我们使用 cookie 来保存您的设置偏好。请选择是否同意使用 cookie。',
+      accept: '接受所有 Cookie',
+      decline: '仅必要 Cookie',
+      settings: 'Cookie 设置',
+      necessary: '必要 Cookie',
+      preferences: '偏好设置 Cookie',
+      manage: '管理 Cookie 设置',
+      footer: 'Cookie 设置',
+      save: '保存设置',
+      close: '关闭',
+    },
   },
   en: {
     dashboard: {
@@ -101,6 +135,23 @@ const translations: Record<LanguageType, LanguageResources> = {
       displayCount: 'Display Count',
       clientCount: 'Client Count',
     },
+    preferences: {
+      saved: 'Settings Saved',
+      autoSaved: 'Your preferences have been automatically saved',
+    },
+    cookies: {
+      title: 'Manage Cookie Preferences',
+      description: 'We use cookies to save your preferences. Please choose whether you consent to the use of cookies.',
+      accept: 'Accept All Cookies',
+      decline: 'Necessary Cookies Only',
+      settings: 'Cookie Settings',
+      necessary: 'Necessary Cookies',
+      preferences: 'Preference Cookies',
+      manage: 'Manage Cookie Settings',
+      footer: 'Cookie Settings',
+      save: 'Save Settings',
+      close: 'Close',
+    },
   },
   ja: {
     dashboard: {
@@ -131,6 +182,23 @@ const translations: Record<LanguageType, LanguageResources> = {
       showingVersions: '{total}バージョン中{count}を表示',
       displayCount: '表示数',
       clientCount: 'クライアント数',
+    },
+    preferences: {
+      saved: '設定が保存されました',
+      autoSaved: '設定が自動的に保存されました',
+    },
+    cookies: {
+      title: 'Cookieの設定を管理',
+      description: '当サイトでは設定を保存するためにCookieを使用しています。Cookieの使用に同意するかどうかを選択してください。',
+      accept: 'すべてのCookieを受け入れる',
+      decline: '必要なCookieのみ',
+      settings: 'Cookie設定',
+      necessary: '必要なCookie',
+      preferences: '設定用Cookie',
+      manage: 'Cookie設定を管理',
+      footer: 'Cookie設定',
+      save: '設定を保存',
+      close: '閉じる',
     },
   },
 };
