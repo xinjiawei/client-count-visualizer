@@ -144,10 +144,7 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between mb-2">
-        <div className="text-sm text-muted-foreground">
-          {t('chart.showingVersions', { count: visibleItems, total: formattedData.length })}
-        </div>
+      <div className="flex items-center justify-end mb-2">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground whitespace-nowrap">{t('chart.displayCount')}</span>
           <Select 
@@ -188,6 +185,10 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
           </ResponsiveContainer>
         </div>
       </ScrollArea>
+      
+      <div className="text-sm text-muted-foreground text-center mt-2 mb-2">
+        {t('chart.showingVersions', { count: visibleItems, total: formattedData.length })}
+      </div>
       
       {maxScroll > 0 && (
         <div className="pt-2">
