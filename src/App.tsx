@@ -14,8 +14,8 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <CookieConsentProvider>
+    <CookieConsentProvider>
+      <LanguageProvider>
         <TooltipProvider>
           <Toaster />
           <Sonner />
@@ -28,8 +28,8 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
-      </CookieConsentProvider>
-    </LanguageProvider>
+      </LanguageProvider>
+    </CookieConsentProvider>
   </QueryClientProvider>
 );
 

@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import { useCookieConsent } from '@/hooks/use-cookie-consent';
@@ -245,7 +246,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return 'zh'; // Default to Chinese
   };
 
-  const [language, setLanguage] = useState<LanguageType>(getInitialLanguage);
+  const [language, setLanguage] = useState<LanguageType>(getInitialLanguage());
 
   // Update cookie when language changes, but only if consent is given
   useEffect(() => {
