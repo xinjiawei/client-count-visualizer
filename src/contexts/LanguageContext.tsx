@@ -1,6 +1,6 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import Cookies from 'js-cookie';
+import { useCookieConsent } from '@/hooks/use-cookie-consent';
 
 // Available languages
 export type LanguageType = 'zh' | 'en' | 'ja';
@@ -223,18 +223,36 @@ const LANGUAGE_COOKIE = 'preferred_language';
 
 // Language provider component
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  // Get initial language from cookie or use Chinese as default
+  const { hasConsent } = useCookieConsent();
+  
+  // Get initial language from cookie if available and consent is given, otherwise use browser language or Chinese as default
   const getInitialLanguage = (): LanguageType => {
-    const savedLanguage = Cookies.get(LANGUAGE_COOKIE) as LanguageType | undefined;
-    return savedLanguage || 'zh';
+    if (hasConsent) {
+      const savedLanguage = Cookies.get(LANGUAGE_COOKIE) as LanguageType | undefined;
+      if (savedLanguage) return savedLanguage;
+    }
+    
+    // If no cookie or no consent, try to detect browser language
+    try {
+      const browserLang = navigator.language.split('-')[0];
+      if (browserLang === 'zh' || browserLang === 'en' || browserLang === 'ja') {
+        return browserLang as LanguageType;
+      }
+    } catch (e) {
+      console.log('Could not detect browser language');
+    }
+    
+    return 'zh'; // Default to Chinese
   };
 
   const [language, setLanguage] = useState<LanguageType>(getInitialLanguage);
 
-  // Update cookie when language changes
+  // Update cookie when language changes, but only if consent is given
   useEffect(() => {
-    Cookies.set(LANGUAGE_COOKIE, language, { expires: 365 });
-  }, [language]);
+    if (hasConsent) {
+      Cookies.set(LANGUAGE_COOKIE, language, { expires: 365 });
+    }
+  }, [language, hasConsent]);
 
   // Translation function
   const t = (key: string, params?: Record<string, any>): string => {

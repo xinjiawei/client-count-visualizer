@@ -4,7 +4,7 @@ import { fetchClientData } from "@/services/apiService";
 import BarChartComponent from "@/components/BarChartComponent";
 import DataSummary from "@/components/DataSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowDownAZ, SortAsc, SortDesc, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -12,28 +12,50 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Footer from "@/components/Footer";
+import Cookies from "js-cookie";
+import { useCookieConsent } from "@/hooks/use-cookie-consent";
 
 // 定义排序类型
 export type SortType = "default" | "asc" | "desc";
 
+// Cookie key for sort preference
+const SORT_PREFERENCE_COOKIE = "client_dashboard_sort_type";
+
 const ClientDashboard = () => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
+  const { hasConsent } = useCookieConsent();
+  
+  // Get initial sort type from cookie if consent is given
+  const getInitialSortType = (): SortType => {
+    if (hasConsent) {
+      const savedSort = Cookies.get(SORT_PREFERENCE_COOKIE) as SortType | undefined;
+      return savedSort || "default";
+    }
+    return "default";
+  };
+  
   // 添加共享的排序状态
-  const [sortType, setSortType] = useState<SortType>("default");
+  const [sortType, setSortType] = useState<SortType>(getInitialSortType);
+  
+  // Save sort preference to cookie when it changes if consent is given
+  useEffect(() => {
+    if (hasConsent) {
+      Cookies.set(SORT_PREFERENCE_COOKIE, sortType, { expires: 30 });
+    }
+  }, [sortType, hasConsent]);
   
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["clientData"],
     queryFn: fetchClientData,
-    onSuccess: (data) => {
-      if (data && Object.keys(data).length > 0) {
+    onSettled: (data, error) => {
+      if (error) {
+        toast.error(t('dashboard.fetchError'), {
+          description: error instanceof Error ? error.message : String(error)
+        });
+      } else if (data && Object.keys(data).length > 0) {
         toast.success(t('dashboard.dataRefreshed'));
       }
-    },
-    onError: (error) => {
-      toast.error(t('dashboard.fetchError'), {
-        description: error instanceof Error ? error.message : String(error)
-      });
     }
   });
 
