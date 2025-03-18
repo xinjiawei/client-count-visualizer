@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import Cookies from 'js-cookie';
 
@@ -61,7 +60,6 @@ export const CookieConsentProvider = ({ children }: CookieConsentProviderProps) 
     setIsDialogOpen(false);
     
     // Remove any preference cookies
-    Cookies.remove('client_dashboard_visible_items');
     Cookies.remove('client_dashboard_sort_type');
     Cookies.remove('preferred_language');
     // Add other preference cookies to remove here

@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { fetchClientData } from "@/services/apiService";
 import BarChartComponent from "@/components/BarChartComponent";
@@ -47,15 +48,17 @@ const ClientDashboard = () => {
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["clientData"],
     queryFn: fetchClientData,
-    onSuccess: (data) => {
-      if (data && Object.keys(data).length > 0) {
-        toast.success(t('dashboard.dataRefreshed'));
+    meta: {
+      onSuccess: (data: any) => {
+        if (data && Object.keys(data).length > 0) {
+          toast.success(t('dashboard.dataRefreshed'));
+        }
+      },
+      onError: (error: any) => {
+        toast.error(t('dashboard.fetchError'), {
+          description: error instanceof Error ? error.message : String(error)
+        });
       }
-    },
-    onError: (error) => {
-      toast.error(t('dashboard.fetchError'), {
-        description: error instanceof Error ? error.message : String(error)
-      });
     }
   });
 
