@@ -33,19 +33,23 @@ export const CookieConsentProvider = ({ children }: CookieConsentProviderProps) 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Check existing consent on mount
+  // Check existing consent on mount - but only once
   useEffect(() => {
-    const savedConsent = Cookies.get(CONSENT_COOKIE) as ConsentStatus | undefined;
-    
-    if (savedConsent) {
-      setConsentStatus(savedConsent);
-    } else {
-      // Show dialog on initial load if no existing consent
-      setIsDialogOpen(true);
+    if (!isInitialized) {
+      const savedConsent = Cookies.get(CONSENT_COOKIE) as ConsentStatus | undefined;
+      
+      if (savedConsent) {
+        setConsentStatus(savedConsent);
+        // Don't show dialog if we already have saved consent
+        setIsDialogOpen(false);
+      } else {
+        // Only show dialog on initial load if no existing consent
+        setIsDialogOpen(true);
+      }
+      
+      setIsInitialized(true);
     }
-    
-    setIsInitialized(true);
-  }, []);
+  }, [isInitialized]);
 
   // Accept all cookies
   const acceptAll = () => {
