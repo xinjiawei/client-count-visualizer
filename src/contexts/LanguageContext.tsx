@@ -1,5 +1,4 @@
-
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import Cookies from 'js-cookie';
 import { useCookieConsent } from '@/hooks/use-cookie-consent';
 
@@ -225,6 +224,7 @@ const LANGUAGE_COOKIE = 'preferred_language';
 // Language provider component
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const { hasConsent } = useCookieConsent();
+  const initialStateSet = useRef(false);
   
   // Get initial language from cookie if available and consent is given, otherwise use browser language or Chinese as default
   const getInitialLanguage = (): LanguageType => {
@@ -252,7 +252,13 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   const [language, setLanguage] = useState<LanguageType>(getInitialLanguage());
 
   // Update cookie when language changes, but only if consent is given
+  // Prevent the initial state setup from immediately overwriting the cookie
   useEffect(() => {
+    if (!initialStateSet.current) {
+      initialStateSet.current = true;
+      return;
+    }
+    
     if (hasConsent) {
       console.log('Saving language to cookie:', language);
       Cookies.set(LANGUAGE_COOKIE, language, { expires: 365, sameSite: 'strict' });

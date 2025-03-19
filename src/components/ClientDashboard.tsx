@@ -4,7 +4,7 @@ import { fetchClientData } from "@/services/apiService";
 import BarChartComponent from "@/components/BarChartComponent";
 import DataSummary from "@/components/DataSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ArrowDownAZ, SortAsc, SortDesc, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -25,6 +25,7 @@ const ClientDashboard = () => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
   const { hasConsent } = useCookieConsent();
+  const initialStateSet = useRef(false);
   
   // Get initial sort type from cookie if consent is given
   const getInitialSortType = (): SortType => {
@@ -42,7 +43,13 @@ const ClientDashboard = () => {
   const [sortType, setSortType] = useState<SortType>(getInitialSortType());
   
   // Save sort preference to cookie when it changes if consent is given
+  // But prevent the initial state setup from immediately overwriting the cookie
   useEffect(() => {
+    if (!initialStateSet.current) {
+      initialStateSet.current = true;
+      return;
+    }
+    
     if (hasConsent) {
       console.log('Saving sort preference to cookie:', sortType);
       Cookies.set(SORT_PREFERENCE_COOKIE, sortType, { expires: 30, sameSite: 'strict' });
