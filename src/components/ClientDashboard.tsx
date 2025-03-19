@@ -29,14 +29,16 @@ const ClientDashboard = () => {
   // Get initial sort type from cookie if consent is given
   const getInitialSortType = (): SortType => {
     if (hasConsent) {
-      const savedSort = Cookies.get(SORT_PREFERENCE_COOKIE) as SortType | undefined;
-      return savedSort || "default";
+      const savedSort = Cookies.get(SORT_PREFERENCE_COOKIE);
+      if (savedSort && (savedSort === "default" || savedSort === "asc" || savedSort === "desc")) {
+        return savedSort as SortType;
+      }
     }
     return "default";
   };
   
   // 添加共享的排序状态
-  const [sortType, setSortType] = useState<SortType>(getInitialSortType);
+  const [sortType, setSortType] = useState<SortType>(getInitialSortType());
   
   // Save sort preference to cookie when it changes if consent is given
   useEffect(() => {

@@ -229,8 +229,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   // Get initial language from cookie if available and consent is given, otherwise use browser language or Chinese as default
   const getInitialLanguage = (): LanguageType => {
     if (hasConsent) {
-      const savedLanguage = Cookies.get(LANGUAGE_COOKIE) as LanguageType | undefined;
-      if (savedLanguage) return savedLanguage;
+      const savedLanguage = Cookies.get(LANGUAGE_COOKIE);
+      if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en' || savedLanguage === 'ja')) {
+        return savedLanguage as LanguageType;
+      }
     }
     
     // If no cookie or no consent, try to detect browser language
