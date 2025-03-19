@@ -33,35 +33,38 @@ export const CookieConsentProvider = ({ children }: CookieConsentProviderProps) 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Check existing consent on mount - but only once
+  // Check existing consent on mount - only run this effect ONCE
   useEffect(() => {
-    if (!isInitialized) {
-      const savedConsent = Cookies.get(CONSENT_COOKIE) as ConsentStatus | undefined;
-      
-      if (savedConsent) {
-        setConsentStatus(savedConsent);
-        // Don't show dialog if we already have saved consent
-        setIsDialogOpen(false);
-      } else {
-        // Only show dialog on initial load if no existing consent
-        setIsDialogOpen(true);
-      }
-      
-      setIsInitialized(true);
+    // Retrieve saved consent from cookies
+    const savedConsent = Cookies.get(CONSENT_COOKIE) as ConsentStatus | undefined;
+    
+    console.log('Initial cookie consent state:', savedConsent);
+    
+    if (savedConsent) {
+      // If we have a saved consent, use it
+      setConsentStatus(savedConsent);
+      setIsDialogOpen(false);
+    } else {
+      // No existing consent, show dialog
+      setIsDialogOpen(true);
     }
-  }, [isInitialized]);
-
+    
+    setIsInitialized(true);
+  }, []); // Empty dependency array ensures this only runs once on mount
+  
   // Accept all cookies
   const acceptAll = () => {
+    console.log('Accepting all cookies');
     setConsentStatus('accepted');
-    Cookies.set(CONSENT_COOKIE, 'accepted', { expires: 365 });
+    Cookies.set(CONSENT_COOKIE, 'accepted', { expires: 365, sameSite: 'strict' });
     setIsDialogOpen(false);
   };
 
   // Decline all except necessary cookies
   const declineAll = () => {
+    console.log('Declining cookies - removing preference cookies');
     setConsentStatus('declined');
-    Cookies.set(CONSENT_COOKIE, 'declined', { expires: 365 });
+    Cookies.set(CONSENT_COOKIE, 'declined', { expires: 365, sameSite: 'strict' });
     setIsDialogOpen(false);
     
     // Remove any preference cookies

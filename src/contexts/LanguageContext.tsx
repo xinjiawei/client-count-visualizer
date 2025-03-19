@@ -230,6 +230,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   const getInitialLanguage = (): LanguageType => {
     if (hasConsent) {
       const savedLanguage = Cookies.get(LANGUAGE_COOKIE);
+      console.log('Loading language from cookie:', savedLanguage);
       if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en' || savedLanguage === 'ja')) {
         return savedLanguage as LanguageType;
       }
@@ -253,7 +254,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   // Update cookie when language changes, but only if consent is given
   useEffect(() => {
     if (hasConsent) {
-      Cookies.set(LANGUAGE_COOKIE, language, { expires: 365 });
+      console.log('Saving language to cookie:', language);
+      Cookies.set(LANGUAGE_COOKIE, language, { expires: 365, sameSite: 'strict' });
     }
   }, [language, hasConsent]);
 

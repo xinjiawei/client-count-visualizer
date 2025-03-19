@@ -30,6 +30,7 @@ const ClientDashboard = () => {
   const getInitialSortType = (): SortType => {
     if (hasConsent) {
       const savedSort = Cookies.get(SORT_PREFERENCE_COOKIE);
+      console.log('Loading sort preference from cookie:', savedSort);
       if (savedSort && (savedSort === "default" || savedSort === "asc" || savedSort === "desc")) {
         return savedSort as SortType;
       }
@@ -43,7 +44,8 @@ const ClientDashboard = () => {
   // Save sort preference to cookie when it changes if consent is given
   useEffect(() => {
     if (hasConsent) {
-      Cookies.set(SORT_PREFERENCE_COOKIE, sortType, { expires: 30 });
+      console.log('Saving sort preference to cookie:', sortType);
+      Cookies.set(SORT_PREFERENCE_COOKIE, sortType, { expires: 30, sameSite: 'strict' });
     }
   }, [sortType, hasConsent]);
   

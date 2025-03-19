@@ -30,9 +30,24 @@ const CookieConsentDialog = () => {
     };
   }, [isConsentDialogOpen]);
 
+  // Log dialog state for debugging
+  useEffect(() => {
+    console.log('Cookie consent dialog open state:', isConsentDialogOpen);
+  }, [isConsentDialogOpen]);
+
   if (!isConsentDialogOpen) {
     return null;
   }
+
+  const handleAccept = () => {
+    console.log('Accept button clicked');
+    acceptAll();
+  };
+
+  const handleDecline = () => {
+    console.log('Decline button clicked');
+    declineAll();
+  };
 
   return (
     <AlertDialog open={isConsentDialogOpen} onOpenChange={() => {}}>
@@ -44,10 +59,10 @@ const CookieConsentDialog = () => {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={declineAll}>
+          <AlertDialogCancel onClick={handleDecline}>
             {t('cookies.decline')}
           </AlertDialogCancel>
-          <AlertDialogAction onClick={acceptAll}>
+          <AlertDialogAction onClick={handleAccept}>
             {t('cookies.accept')}
           </AlertDialogAction>
         </AlertDialogFooter>
