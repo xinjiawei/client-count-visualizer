@@ -58,7 +58,7 @@ export interface LanguageResources {
 const translations: Record<LanguageType, LanguageResources> = {
   zh: {
     dashboard: {
-      title: '客户端统计面板',
+      title: '服务端版本统计面板',
       refreshButton: '刷新数据',
       refreshing: '刷新中...',
       sortByVersion: '版本排序',
@@ -76,16 +76,16 @@ const translations: Record<LanguageType, LanguageResources> = {
       viewBlog: '查看博客',
     },
     summary: {
-      totalClients: '总客户端数',
+      totalClients: '总服务端数',
       versionCount: '版本数量',
       popularVersion: '最常用版本',
       latestVersion: '最新版本',
-      clients: '客户端',
+      clients: '服务端',
     },
     chart: {
       showingVersions: '显示 {count} 个版本 (共 {total} 个)',
       displayCount: '显示数量',
-      clientCount: '客户端数量',
+      clientCount: '服务端数量',
     },
     preferences: {
       saved: '设置已保存',
@@ -107,7 +107,7 @@ const translations: Record<LanguageType, LanguageResources> = {
   },
   en: {
     dashboard: {
-      title: 'Client Dashboard',
+      title: 'Server Ver Dashboard',
       refreshButton: 'Refresh Data',
       refreshing: 'Refreshing...',
       sortByVersion: 'Sort by Version',
@@ -119,22 +119,22 @@ const translations: Record<LanguageType, LanguageResources> = {
       retry: 'Retry',
       rawData: 'Raw Data',
       version: 'Version',
-      clientCount: 'Client Count',
+      clientCount: 'Server Count',
       fetchError: 'Failed to fetch data',
       dataRefreshed: 'Data refreshed',
       viewBlog: 'View Blog',
     },
     summary: {
-      totalClients: 'Total Clients',
+      totalClients: 'Total Servers',
       versionCount: 'Version Count',
       popularVersion: 'Most Popular Version',
       latestVersion: 'Latest Version',
-      clients: 'clients',
+      clients: 'servers',
     },
     chart: {
       showingVersions: 'Showing {count} of {total} versions',
       displayCount: 'Display Count',
-      clientCount: 'Client Count',
+      clientCount: 'Server Count',
     },
     preferences: {
       saved: 'Settings Saved',
