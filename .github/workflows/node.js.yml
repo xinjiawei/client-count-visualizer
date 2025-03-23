@@ -25,7 +25,7 @@ jobs:
       - name: List directory contents for debugging
         run: ls -la
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3.1.2
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifact
           path: ./dist
