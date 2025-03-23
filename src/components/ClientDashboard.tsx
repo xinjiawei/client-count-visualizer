@@ -124,12 +124,12 @@ const ClientDashboard = () => {
             {isRefetching ? (
               <>
                 <RefreshCw className="mr-1 h-4 w-4 animate-spin" />
-                {t('dashboard.refreshing')}
+                {!isMobile && t('dashboard.refreshing')}
               </>
             ) : (
               <>
                 <RefreshCw className="mr-1 h-4 w-4" />
-                {t('dashboard.refreshButton')}
+                {!isMobile && t('dashboard.refreshButton')}
               </>
             )}
           </Button>
