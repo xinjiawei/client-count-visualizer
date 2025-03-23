@@ -8,7 +8,6 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { CookieConsentProvider } from "./hooks/use-cookie-consent";
-import CookieConsentDialog from "./components/CookieConsentDialog";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +18,6 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <CookieConsentDialog />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
