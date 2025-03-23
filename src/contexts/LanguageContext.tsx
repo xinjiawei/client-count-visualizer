@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Available languages
@@ -156,7 +157,7 @@ const translations: Record<LanguageType, LanguageResources> = {
   },
   ja: {
     dashboard: {
-      title: 'クライアントダッシュボード',
+      title: 'サーバーバージョンダッシュボード',
       refreshButton: 'データを更新',
       refreshing: '更新中...',
       sortByVersion: 'バージョンで並べ替え',
@@ -168,22 +169,22 @@ const translations: Record<LanguageType, LanguageResources> = {
       retry: '再試行',
       rawData: '生データ',
       version: 'バージョン',
-      clientCount: 'クライアント数',
+      clientCount: 'サーバー数',
       fetchError: 'データの取得に失敗しました',
       dataRefreshed: 'データが更新されました',
       viewBlog: 'ブログを見る',
     },
     summary: {
-      totalClients: '合計クライアント',
+      totalClients: '合計サーバー',
       versionCount: 'バージョン数',
       popularVersion: '最も人気のバージョン',
       latestVersion: '最新バージョン',
-      clients: 'クライアント',
+      clients: 'サーバー',
     },
     chart: {
       showingVersions: '{total}バージョン中{count}を表示',
       displayCount: '表示数',
-      clientCount: 'クライアント数',
+      clientCount: 'サーバー数',
     },
     preferences: {
       saved: '設定が保存されました',
