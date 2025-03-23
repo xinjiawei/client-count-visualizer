@@ -1,17 +1,10 @@
 
-import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import Cookies from 'js-cookie';
-
-// Cookie consent types
-type ConsentStatus = 'pending' | 'accepted' | 'declined';
-
-// Cookie for storing consent status
-const CONSENT_COOKIE = 'cookie_consent';
+import { useState, createContext, useContext, ReactNode } from 'react';
 
 // Context type definition
 interface CookieConsentContextType {
-  consentStatus: ConsentStatus;
-  hasConsent: boolean;
+  consentStatus: 'accepted';
+  hasConsent: true;
   acceptAll: () => void;
   declineAll: () => void;
   openConsentDialog: () => void;
@@ -29,48 +22,18 @@ interface CookieConsentProviderProps {
 
 // Provider component
 export const CookieConsentProvider = ({ children }: CookieConsentProviderProps) => {
-  const [consentStatus, setConsentStatus] = useState<ConsentStatus>('pending');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Check existing consent on mount - only run this effect ONCE
-  useEffect(() => {
-    // Retrieve saved consent from cookies
-    const savedConsent = Cookies.get(CONSENT_COOKIE) as ConsentStatus | undefined;
-    
-    console.log('Initial cookie consent state:', savedConsent);
-    
-    if (savedConsent) {
-      // If we have a saved consent, use it
-      setConsentStatus(savedConsent);
-      setIsDialogOpen(false);
-    } else {
-      // No existing consent, show dialog
-      setIsDialogOpen(true);
-    }
-    
-    setIsInitialized(true);
-  }, []); // Empty dependency array ensures this only runs once on mount
   
   // Accept all cookies
   const acceptAll = () => {
-    console.log('Accepting all cookies');
-    setConsentStatus('accepted');
-    Cookies.set(CONSENT_COOKIE, 'accepted', { expires: 365, sameSite: 'strict' });
+    console.log('Accept action triggered - no cookies are set');
     setIsDialogOpen(false);
   };
 
-  // Decline all except necessary cookies
+  // Decline all cookies
   const declineAll = () => {
-    console.log('Declining cookies - removing preference cookies');
-    setConsentStatus('declined');
-    Cookies.set(CONSENT_COOKIE, 'declined', { expires: 365, sameSite: 'strict' });
+    console.log('Decline action triggered - no cookies are affected');
     setIsDialogOpen(false);
-    
-    // Remove any preference cookies
-    Cookies.remove('client_dashboard_sort_type');
-    Cookies.remove('preferred_language');
-    // Add other preference cookies to remove here
   };
 
   // Open the consent dialog
@@ -83,19 +46,16 @@ export const CookieConsentProvider = ({ children }: CookieConsentProviderProps) 
     setIsDialogOpen(false);
   };
 
-  // Determine if we have consent to use preference cookies
-  const hasConsent = consentStatus === 'accepted';
-
   return (
     <CookieConsentContext.Provider 
       value={{
-        consentStatus,
-        hasConsent,
+        consentStatus: 'accepted',
+        hasConsent: true,
         acceptAll,
         declineAll,
         openConsentDialog,
         closeConsentDialog,
-        isConsentDialogOpen: isDialogOpen && isInitialized,
+        isConsentDialogOpen: isDialogOpen,
       }}
     >
       {children}

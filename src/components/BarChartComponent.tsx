@@ -4,12 +4,9 @@ import { ClientData } from "@/types/clientData";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
 import { useState, useEffect, useRef } from "react";
-import Cookies from "js-cookie";
-import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SortType } from "@/components/ClientDashboard";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useCookieConsent } from "@/hooks/use-cookie-consent";
 
 interface BarChartComponentProps {
   data: ClientData;
@@ -21,14 +18,8 @@ interface FormattedData {
   count: number;
 }
 
-// Cookie keys
-const COOKIE_VISIBLE_ITEMS = "client_dashboard_visible_items";
-const COOKIE_EXPIRY = 30; // Days until cookie expires
-
 const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
-  const { t, language } = useLanguage();
-  const { toast } = useToast();
-  const { hasConsent } = useCookieConsent();
+  const { t } = useLanguage();
   const chartContainerRef = useRef<HTMLDivElement>(null);
   
   // Format data for recharts
@@ -37,16 +28,8 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
     count,
   }));
 
-  // Load preferences from cookies or use defaults
-  const getInitialVisibleItems = () => {
-    if (hasConsent) {
-      return Number(Cookies.get(COOKIE_VISIBLE_ITEMS)) || 20;
-    }
-    return 20;
-  };
-
   // States
-  const [visibleItems, setVisibleItems] = useState(getInitialVisibleItems);
+  const [visibleItems, setVisibleItems] = useState(20); // Default to 20 items
   const [scrollPosition, setScrollPosition] = useState(0);
   const [visibleData, setVisibleData] = useState<FormattedData[]>([]);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -92,20 +75,6 @@ const BarChartComponent = ({ data, sortType }: BarChartComponentProps) => {
   useEffect(() => {
     setScrollPosition(0);
   }, [sortType]);
-
-  // Auto-save preferences to cookies whenever they change
-  useEffect(() => {
-    if (hasConsent) {
-      Cookies.set(COOKIE_VISIBLE_ITEMS, visibleItems.toString(), { expires: COOKIE_EXPIRY });
-      
-      // Show toast notification in the current language
-      toast({
-        title: t('preferences.saved'),
-        description: t('preferences.autoSaved'),
-        duration: 1500,
-      });
-    }
-  }, [visibleItems, toast, t, hasConsent]);
 
   // Calculate dynamic bar width based on container width and number of items
   const calculateBarWidth = () => {

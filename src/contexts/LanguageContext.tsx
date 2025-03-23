@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
-import Cookies from 'js-cookie';
-import { useCookieConsent } from '@/hooks/use-cookie-consent';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Available languages
 export type LanguageType = 'zh' | 'en' | 'ja';
@@ -218,25 +216,11 @@ interface LanguageProviderProps {
   children: ReactNode;
 }
 
-// Cookie name for storing language preference
-const LANGUAGE_COOKIE = 'preferred_language';
-
 // Language provider component
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const { hasConsent } = useCookieConsent();
-  const initialStateSet = useRef(false);
-  
-  // Get initial language from cookie if available and consent is given, otherwise use browser language or Chinese as default
+  // Get initial language from browser or default to Chinese
   const getInitialLanguage = (): LanguageType => {
-    if (hasConsent) {
-      const savedLanguage = Cookies.get(LANGUAGE_COOKIE);
-      console.log('Loading language from cookie:', savedLanguage);
-      if (savedLanguage && (savedLanguage === 'zh' || savedLanguage === 'en' || savedLanguage === 'ja')) {
-        return savedLanguage as LanguageType;
-      }
-    }
-    
-    // If no cookie or no consent, try to detect browser language
+    // Try to detect browser language
     try {
       const browserLang = navigator.language.split('-')[0];
       if (browserLang === 'zh' || browserLang === 'en' || browserLang === 'ja') {
@@ -250,20 +234,6 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   };
 
   const [language, setLanguage] = useState<LanguageType>(getInitialLanguage());
-
-  // Update cookie when language changes, but only if consent is given
-  // Prevent the initial state setup from immediately overwriting the cookie
-  useEffect(() => {
-    if (!initialStateSet.current) {
-      initialStateSet.current = true;
-      return;
-    }
-    
-    if (hasConsent) {
-      console.log('Saving language to cookie:', language);
-      Cookies.set(LANGUAGE_COOKIE, language, { expires: 365, sameSite: 'strict' });
-    }
-  }, [language, hasConsent]);
 
   // Translation function
   const t = (key: string, params?: Record<string, any>): string => {

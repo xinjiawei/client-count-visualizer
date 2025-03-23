@@ -4,7 +4,7 @@ import { fetchClientData } from "@/services/apiService";
 import BarChartComponent from "@/components/BarChartComponent";
 import DataSummary from "@/components/DataSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { ArrowDownAZ, SortAsc, SortDesc, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -12,49 +12,16 @@ import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Footer from "@/components/Footer";
-import Cookies from "js-cookie";
-import { useCookieConsent } from "@/hooks/use-cookie-consent";
 
-// 定义排序类型
+// Define sort type
 export type SortType = "default" | "asc" | "desc";
-
-// Cookie key for sort preference
-const SORT_PREFERENCE_COOKIE = "client_dashboard_sort_type";
 
 const ClientDashboard = () => {
   const { t } = useLanguage();
   const isMobile = useIsMobile();
-  const { hasConsent } = useCookieConsent();
-  const initialStateSet = useRef(false);
   
-  // Get initial sort type from cookie if consent is given
-  const getInitialSortType = (): SortType => {
-    if (hasConsent) {
-      const savedSort = Cookies.get(SORT_PREFERENCE_COOKIE);
-      console.log('Loading sort preference from cookie:', savedSort);
-      if (savedSort && (savedSort === "default" || savedSort === "asc" || savedSort === "desc")) {
-        return savedSort as SortType;
-      }
-    }
-    return "default";
-  };
-  
-  // 添加共享的排序状态
-  const [sortType, setSortType] = useState<SortType>(getInitialSortType());
-  
-  // Save sort preference to cookie when it changes if consent is given
-  // But prevent the initial state setup from immediately overwriting the cookie
-  useEffect(() => {
-    if (!initialStateSet.current) {
-      initialStateSet.current = true;
-      return;
-    }
-    
-    if (hasConsent) {
-      console.log('Saving sort preference to cookie:', sortType);
-      Cookies.set(SORT_PREFERENCE_COOKIE, sortType, { expires: 30, sameSite: 'strict' });
-    }
-  }, [sortType, hasConsent]);
+  // Add shared sort state with default value
+  const [sortType, setSortType] = useState<SortType>("default");
   
   const { data, isLoading, error, refetch, isRefetching } = useQuery({
     queryKey: ["clientData"],
@@ -105,18 +72,18 @@ const ClientDashboard = () => {
     );
   }
 
-  // 根据当前排序类型对数据进行排序
+  // Sort data based on current sort type
   const getSortedData = () => {
     const entries = Object.entries(data);
     
     if (sortType === "default") {
-      // 按版本排序（默认）
+      // Sort by version (default)
       return entries.sort((a, b) => a[0].localeCompare(b[0]));
     } else if (sortType === "asc") {
-      // 按数量升序
+      // Sort by count ascending
       return entries.sort((a, b) => a[1] - b[1]);
     } else if (sortType === "desc") {
-      // 按数量降序
+      // Sort by count descending
       return entries.sort((a, b) => b[1] - a[1]);
     }
     
