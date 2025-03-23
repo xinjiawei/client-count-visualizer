@@ -1,11 +1,10 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { fetchClientData } from "@/services/apiService";
 import BarChartComponent from "@/components/BarChartComponent";
 import DataSummary from "@/components/DataSummary";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
-import { ArrowDownAZ, SortAsc, SortDesc, RefreshCw } from "lucide-react";
+import { ArrowDownAZ, SortAsc, SortDesc, RefreshCw, Newspaper } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
@@ -39,6 +38,11 @@ const ClientDashboard = () => {
       }
     }
   });
+
+  // Function to handle blog button click
+  const handleBlogClick = () => {
+    window.open("https://blog.jiawei.xin/?p=469", "_blank", "noopener,noreferrer");
+  };
 
   if (isLoading) {
     return (
@@ -99,6 +103,18 @@ const ClientDashboard = () => {
         <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
+          
+          {/* New Blog Button */}
+          <Button 
+            onClick={handleBlogClick}
+            variant="outline"
+            size="sm"
+            className="px-3 py-1 rounded-md transition-colors text-sm hover:bg-accent"
+          >
+            <Newspaper className="mr-1 h-4 w-4" />
+            {!isMobile && t('dashboard.viewBlog')}
+          </Button>
+          
           <Button 
             onClick={() => refetch()}
             disabled={isRefetching}

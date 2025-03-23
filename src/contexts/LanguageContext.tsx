@@ -21,6 +21,7 @@ export interface LanguageResources {
     clientCount: string;
     fetchError: string;
     dataRefreshed: string;
+    viewBlog: string;
   };
   summary: {
     totalClients: string;
@@ -72,6 +73,7 @@ const translations: Record<LanguageType, LanguageResources> = {
       clientCount: '客户端数量',
       fetchError: '获取数据失败',
       dataRefreshed: '数据已刷新',
+      viewBlog: '查看博客',
     },
     summary: {
       totalClients: '总客户端数',
@@ -120,6 +122,7 @@ const translations: Record<LanguageType, LanguageResources> = {
       clientCount: 'Client Count',
       fetchError: 'Failed to fetch data',
       dataRefreshed: 'Data refreshed',
+      viewBlog: 'View Blog',
     },
     summary: {
       totalClients: 'Total Clients',
@@ -168,6 +171,7 @@ const translations: Record<LanguageType, LanguageResources> = {
       clientCount: 'クライアント数',
       fetchError: 'データの取得に失敗しました',
       dataRefreshed: 'データが更新されました',
+      viewBlog: 'ブログを見る',
     },
     summary: {
       totalClients: '合計クライアント',
