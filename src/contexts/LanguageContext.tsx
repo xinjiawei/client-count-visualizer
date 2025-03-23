@@ -70,7 +70,7 @@ const translations: Record<LanguageType, LanguageResources> = {
       retry: '重试',
       rawData: '原始数据',
       version: '版本',
-      clientCount: '客户端数量',
+      clientCount: '服务端数量',
       fetchError: '获取数据失败',
       dataRefreshed: '数据已刷新',
       viewBlog: '查看博客',
