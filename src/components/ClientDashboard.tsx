@@ -1,3 +1,4 @@
+import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { fetchClientData } from "@/services/apiService";
 import BarChartComponent from "@/components/BarChartComponent";
@@ -46,8 +47,11 @@ const ClientDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-[400px]">
+      <div className="flex flex-col justify-center items-center h-[400px] space-y-4">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <p className="text-muted-foreground text-center px-4">
+          {t('dashboard.loadingMessage')}
+        </p>
       </div>
     );
   }

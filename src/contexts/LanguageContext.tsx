@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Available languages
@@ -23,6 +22,7 @@ export interface LanguageResources {
     fetchError: string;
     dataRefreshed: string;
     viewBlog: string;
+    loadingMessage: string;
   };
   summary: {
     totalClients: string;
@@ -75,6 +75,7 @@ const translations: Record<LanguageType, LanguageResources> = {
       fetchError: '获取数据失败',
       dataRefreshed: '数据已刷新',
       viewBlog: '查看博客',
+      loadingMessage: '最新数据统计中，这可能需要30秒左右',
     },
     summary: {
       totalClients: '总服务端数',
@@ -124,6 +125,7 @@ const translations: Record<LanguageType, LanguageResources> = {
       fetchError: 'Failed to fetch data',
       dataRefreshed: 'Data refreshed',
       viewBlog: 'View Blog',
+      loadingMessage: 'Latest data statistics in progress, this may take around 30 seconds',
     },
     summary: {
       totalClients: 'Total Servers',
@@ -173,6 +175,7 @@ const translations: Record<LanguageType, LanguageResources> = {
       fetchError: 'データの取得に失敗しました',
       dataRefreshed: 'データが更新されました',
       viewBlog: 'ブログを見る',
+      loadingMessage: '最新のデータ統計中、約30秒かかる可能性があります',
     },
     summary: {
       totalClients: '合計サーバー',
