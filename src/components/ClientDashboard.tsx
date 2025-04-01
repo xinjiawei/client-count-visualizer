@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useQuery } from "@tanstack/react-query";
 import { fetchClientData } from "@/services/apiService";
@@ -102,13 +103,12 @@ const ClientDashboard = () => {
 
   return (
     <div className="container mx-auto p-4 min-h-screen flex flex-col">
-      {/* Responsive header area with flex-col on mobile */}
       <div className={`flex ${isMobile ? 'flex-col space-y-4' : 'justify-between'} items-${isMobile ? 'start' : 'center'} mb-6`}>
         <h1 className="text-2xl font-bold">{t('dashboard.title')}</h1>
         <div className="flex items-center gap-3">
           <LanguageSwitcher />
           
-          {/* New Blog Button */}
+          {/* Updated Blog Button */}
           <Button 
             onClick={handleBlogClick}
             variant="outline"
@@ -116,7 +116,7 @@ const ClientDashboard = () => {
             className="px-3 py-1 rounded-md transition-colors text-sm hover:bg-accent"
           >
             <Newspaper className="mr-1 h-4 w-4" />
-            {!isMobile && t('dashboard.viewBlog')}
+            {t('dashboard.viewBlog')}
           </Button>
           
           <Button 
